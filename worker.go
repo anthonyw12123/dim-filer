@@ -17,16 +17,19 @@ type IngestJob struct {
 }
 
 // Worker is a single concurrent processor
-func Worker(id int, jobs <-chan IngestJob, results chan<- string) {
+// Update the signature to accept dryRun
+func Worker(id int, jobs <-chan IngestJob, results chan<- string, dryRun bool) {
 	for job := range jobs {
-		fmt.Printf("Worker %d: Processing %s\n", id, job.Filename)
-
-		// 1. Create Destination Directory
 		destDir := filepath.Join(job.DestRoot, job.SubFolder)
-		os.MkdirAll(destDir, 0755)
-
-		// 2. Perform the Copy
 		finalPath := filepath.Join(destDir, job.Filename)
+
+		if dryRun {
+			results <- fmt.Sprintf("Worker %d: [DRY RUN] Would move %s -> %s", id, job.Filename, finalPath)
+			continue
+		}
+
+		// ACTUAL EXECUTION
+		os.MkdirAll(destDir, 0755)
 		err := copyFile(job.Source, finalPath)
 		if err != nil {
 			results <- fmt.Sprintf("Worker %d: ❌ Failed %s: %v", id, job.Filename, err)
