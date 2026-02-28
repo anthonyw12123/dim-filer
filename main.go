@@ -1,12 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 )
 
 func main() {
-	fmt.Println("🚀 Dim-Filer: Starting Ingest...")
+	// Define the -dryrun flag (defaults to false)
+	dryRun := flag.Bool("dryrun", false, "Scan and log operations without moving files")
+	flag.Parse()
+
+	if *dryRun {
+		fmt.Println("⚠️  DRY RUN MODE: No files will be moved or modified.")
+	}
 
 	// 1. Load Configs
 	cfg, err := LoadAndMerge("global.json", "import.json")
@@ -15,17 +22,38 @@ func main() {
 	}
 
 	// 2. Scan Source
-	fmt.Printf("🔍 Scanning: %s\n", cfg.SourceDir)
 	orders, err := ScanSource(cfg.SourceDir, cfg.AllowedTypes)
 	if err != nil {
 		log.Fatalf("❌ Scan Error: %v", err)
 	}
 
-	fmt.Printf("✅ Found %d RAW files to process.\n", len(orders))
+	// 3. Launch Worker Pool
+	// We use a channel to send jobs and a channel to receive results
+	jobs := make(chan IngestJob, len(orders))
+	results := make(chan string, len(orders))
 
-	// 3. Dispatch (Coming next!)
-	// For now, let's just print what we found
-	for _, order := range orders {
-		fmt.Printf("   Ready: %s\n", order.Filename)
+	// Start 4 workers (The Heavy Lifters)
+	for w := 1; w <= 4; w++ {
+		go Worker(w, jobs, results, *dryRun)
 	}
+
+	// 4. Fill the Conveyor Belt
+	for _, order := range orders {
+		// For now, we'll hardcode a date or use GetImgDate later
+		jobs <- IngestJob{
+			Source:    order.SourcePath,
+			DestRoot:  cfg.Destinations[0], // Primary destination
+			SubFolder: "2026/2026-02-28",    // We'll wire EXIF here next!
+			Filename:  order.Filename,
+			Config:    cfg,
+		}
+	}
+	close(jobs) // Tell workers no more jobs are coming
+
+	// 5. Collect Results
+	for i := 0; i < len(orders); i++ {
+		fmt.Println(<-results)
+	}
+
+	fmt.Println("🏁 Operation complete.")
 }
