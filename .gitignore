@@ -13,8 +13,10 @@ dim-filer
 *.test
 
 # Output of go generate
-# (usually generated files that shouldn't be in git)
-[temp]*
+# Use a dot or a specific prefix if you use one, otherwise:
+temp/
+*~
+*.tmp
 
 # Local configuration files (Open Standard!)
 # We track the global.json.example, but not the user's actual global.json
