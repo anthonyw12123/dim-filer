@@ -1,0 +1,25 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# The actual compiled dim-filer binary
+dim-filer
+
+# Test binary, built by `go test`
+*.test
+
+# Output of go generate
+# (usually generated files that shouldn't be in git)
+[temp]*
+
+# Local configuration files (Open Standard!)
+# We track the global.json.example, but not the user's actual global.json
+global.json
+import.json
+
+# MacOS noise
+.DS_Store
