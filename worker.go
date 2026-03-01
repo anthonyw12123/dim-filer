@@ -82,8 +82,11 @@ func Worker(id int, jobs <-chan IngestJob, results chan<- string, dryRun bool) {
 
 			// Execute Rust: ./dim-engine /SSD/Path/RAW.arw /SSD/Path/.previews/RAW.json
 			cmd := exec.Command(job.Config.EnginePath, finalPath, recipePath)
-			if err := cmd.Run(); err != nil {
-				results <- fmt.Sprintf("Worker %d: ⚠️  Preview Failed for %s: %v", id, job.Filename, err)
+
+			// Capture the raw output from the Rust engine
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				results <- fmt.Sprintf("Worker %d: ⚠️  Preview Failed for %s: %v\n--- RUST LOG ---\n%s----------------", id, job.Filename, err, string(output))
 			}
 
 			// --- Cleanup the temporary Recipe ---
