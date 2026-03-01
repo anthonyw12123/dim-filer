@@ -18,6 +18,8 @@ type Config struct {
 	VerifyChecksums bool     `json:"verify_checksums"`
 	ExtractPreviews bool     `json:"extract_previews"`
 	AllowedTypes    []string `json:"allowed_types"`
+	DeleteRecipes   bool     `json:"delete_recipes"`   // <-- NEW
+	DeleteOriginals bool     `json:"delete_originals"` // <-- NEW
 }
 
 // LoadAndMerge reads the global config, then the local config, and merges them.
@@ -28,7 +30,9 @@ func LoadAndMerge(globalPath, localPath string) (*Config, error) {
 		FolderTemplate:  "2006/2006-01-02", // Go's quirky standard date format
 		VerifyChecksums: true,
 		//ExtractPreviews: true,
-		AllowedTypes: []string{".arw", ".nef", ".cr3", ".dng"},
+		AllowedTypes:    []string{".arw", ".nef", ".cr3", ".dng"},
+		DeleteRecipes:   true,  // Safe to default true: it's just temp data
+		DeleteOriginals: false, // ALWAYS default false: protect the user's RAWs!
 	}
 
 	// 1. Load Global Config (e.g., ~/.dimdesk/global.json)

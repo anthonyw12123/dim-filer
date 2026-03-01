@@ -86,8 +86,20 @@ func Worker(id int, jobs <-chan IngestJob, results chan<- string, dryRun bool) {
 				results <- fmt.Sprintf("Worker %d: ⚠️  Preview Failed for %s: %v", id, job.Filename, err)
 			}
 
-			// 5. Cleanup (We can tie this to a config flag later)
-			// os.Remove(recipePath)
+			// --- Cleanup the temporary Recipe ---
+			if job.Config.DeleteRecipes {
+				os.Remove(recipePath)
+			}
+		}
+
+		// --- Cleanup the Original SD Card File ---
+		// We ONLY do this if the copy and hash verification were 100% successful.
+		if job.Config.DeleteOriginals {
+			if err := os.Remove(job.Source); err != nil {
+				results <- fmt.Sprintf("Worker %d: ⚠️  Could not delete original %s: %v", id, job.Filename, err)
+			} else {
+				fmt.Printf("Worker %d: 🗑️  Deleted original %s\n", id, job.Filename)
+			}
 		}
 
 		results <- fmt.Sprintf("Worker %d: ✅ Success %s", id, job.Filename)
