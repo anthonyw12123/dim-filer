@@ -39,14 +39,20 @@ func main() {
 
 	// 4. Fill the Conveyor Belt
 	for _, order := range orders {
-		// For now, we'll hardcode a date or use GetImgDate later
+		// Get the actual date from the RAW file
+        datePath, err := GetImgDate(order.SourcePath)
+        if err != nil {
+            fmt.Printf("⚠️  Warning: Could not read EXIF for %s, using fallback.\n", order.Filename)
+            datePath = "Unknown/Unknown-Date"
+        }
+
 		jobs <- IngestJob{
-			Source:    order.SourcePath,
-			DestRoot:  cfg.Destinations[0], // Primary destination
-			SubFolder: "2026/2026-02-28",    // We'll wire EXIF here next!
-			Filename:  order.Filename,
-			Config:    cfg,
-		}
+            Source:    order.SourcePath,
+            DestRoot:  cfg.Destinations[0],
+            SubFolder: datePath,
+            Filename:  order.Filename,
+            Config:    cfg,
+        }
 	}
 	close(jobs) // Tell workers no more jobs are coming
 
