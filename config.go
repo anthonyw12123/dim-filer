@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath" // <--- Add this
-	"strings"       // <--- Add this
+	"path/filepath"
+	"strings"
 )
 
 // ... the rest of your struct and functions ...
@@ -21,6 +21,7 @@ type Config struct {
 	DeleteRecipes   bool           `json:"delete_recipes"`   // <-- NEW
 	DeleteOriginals bool           `json:"delete_originals"` // <-- NEW
 	OrientationMap  map[string]int `json:"orientation_map"`
+	Verbose         bool
 }
 
 // LoadAndMerge reads the global config, then the local config, and merges them.
@@ -34,6 +35,7 @@ func LoadAndMerge(globalPath, localPath string) (*Config, error) {
 		AllowedTypes:    []string{".arw", ".nef", ".cr3", ".dng"},
 		DeleteRecipes:   true,  // Safe to default true: it's just temp data
 		DeleteOriginals: false, // ALWAYS default false: protect the user's RAWs!
+		Verbose:         false,
 	}
 
 	// 1. Load Global Config (e.g., ~/.dimdesk/global.json)
