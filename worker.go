@@ -23,8 +23,9 @@ type IngestJob struct {
 // EngineRecipe matches the Rust `Recipe` struct.
 // We only populate the fields we need for the Fast-Path extraction.
 type EngineRecipe struct {
-	ExtractJpg *bool  `json:"extract_jpg"`
-	OutputPath string `json:"output_path"`
+	ExtractJpg     *bool          `json:"extract_jpg"`
+	OutputPath     string         `json:"output_path"`
+	OrientationMap map[string]int `json:"orientation_map"`
 }
 
 // Worker is a single concurrent processor
@@ -72,8 +73,9 @@ func Worker(id int, jobs <-chan IngestJob, results chan<- string, dryRun bool) {
 			// Build the payload
 			extractFlag := true
 			recipe := EngineRecipe{
-				ExtractJpg: &extractFlag,
-				OutputPath: previewPath,
+				ExtractJpg:     &extractFlag,
+				OutputPath:     previewPath,
+				OrientationMap: job.Config.OrientationMap,
 			}
 
 			// Write the JSON to disk

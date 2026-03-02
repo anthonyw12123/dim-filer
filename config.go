@@ -11,15 +11,16 @@ import (
 // ... the rest of your struct and functions ...
 // Config represents the merged state of Global and Import settings
 type Config struct {
-	EnginePath      string   `json:"engine_path"`
-	SourceDir       string   `json:"source_dir"`
-	Destinations    []string `json:"destinations"`
-	FolderTemplate  string   `json:"folder_template"`
-	VerifyChecksums bool     `json:"verify_checksums"`
-	ExtractPreviews bool     `json:"extract_previews"`
-	AllowedTypes    []string `json:"allowed_types"`
-	DeleteRecipes   bool     `json:"delete_recipes"`   // <-- NEW
-	DeleteOriginals bool     `json:"delete_originals"` // <-- NEW
+	EnginePath      string         `json:"engine_path"`
+	SourceDir       string         `json:"source_dir"`
+	Destinations    []string       `json:"destinations"`
+	FolderTemplate  string         `json:"folder_template"`
+	VerifyChecksums bool           `json:"verify_checksums"`
+	ExtractPreviews bool           `json:"extract_previews"`
+	AllowedTypes    []string       `json:"allowed_types"`
+	DeleteRecipes   bool           `json:"delete_recipes"`   // <-- NEW
+	DeleteOriginals bool           `json:"delete_originals"` // <-- NEW
+	OrientationMap  map[string]int `json:"orientation_map"`
 }
 
 // LoadAndMerge reads the global config, then the local config, and merges them.
